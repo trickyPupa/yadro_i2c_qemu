@@ -43,9 +43,27 @@ static int yadro_i2c_send(I2CSlave *s, uint8_t data)
     return 0;
 }
 
+static void yadro_i2c_reset(DeviceState *dev)
+{
+    YadroI2CState *state = YADRO_I2C_DEVICE(dev);
+
+    state->reg = 0;
+}
+
+static void yadro_i2c_instance_init(Object *obj)
+{
+    YadroI2CState *state = YADRO_I2C_DEVICE(obj);
+    object_property_add_uint8_ptr(obj, "reg", &state->reg,
+                                  OBJ_PROP_FLAG_READWRITE);
+}
+
 static void yadro_i2c_class_init(ObjectClass *oc, const void *data)
 {
     I2CSlaveClass *sc = I2C_SLAVE_CLASS(oc);
+    DeviceClass *dc = DEVICE_CLASS(oc);
+
+    // для совместимости с QMP
+    device_class_set_legacy_reset(dc, yadro_i2c_reset);
 
     sc->event = yadro_i2c_event;
     sc->recv = yadro_i2c_recv;
@@ -56,6 +74,7 @@ static const TypeInfo yadro_i2c_type_info = {
     .name = TYPE_YADRO_I2C_DEVICE,
     .parent = TYPE_I2C_SLAVE,
     .instance_size = sizeof(YadroI2CState),
+    .instance_init = yadro_i2c_instance_init,
     .class_init = yadro_i2c_class_init,
 };
 

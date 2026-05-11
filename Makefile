@@ -40,7 +40,7 @@ run: build
 		-append "root=/dev/sda console=ttyAMA0,115200" \
 		-drive file=$(IMAGES_DIR)/rootfs.ext2,if=scsi,format=raw \
 		-nographic \
-		-device yadro-i2c-device,address=$(I2C_ADDR),bus=i2c \
+		-device yadro-i2c-device,address=$(I2C_ADDR),bus=i2c,id=yadro-i2c \
 		-qmp unix:/tmp/qmp.sock,server,nowait
 
 clean:
