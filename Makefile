@@ -38,7 +38,7 @@ run: build
 		-kernel $(IMAGES_DIR)/zImage \
 		-dtb $(IMAGES_DIR)/versatile-pb.dtb \
 		-append "root=/dev/sda console=ttyAMA0,115200" \
-		-drive file=$(IMAGES_DIR)/rootfs.ext2,if=scsi,format=raw \
+		-drive file=$(IMAGES_DIR)/rootfs.ext2,format=raw \
 		-nographic \
 		-device yadro-i2c-device,address=$(I2C_ADDR),bus=i2c,id=yadro-i2c \
 		-qmp unix:/tmp/qmp.sock,server,nowait

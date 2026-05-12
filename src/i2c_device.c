@@ -1,5 +1,3 @@
-/* Simple I2C device with a single 8-bit register. */
-
 #include "qemu/osdep.h"
 #include "qemu/module.h"
 #include "hw/i2c/i2c.h"
