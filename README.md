@@ -12,6 +12,18 @@
 
 **Сборка и запуск предполагают использование операционной системы Linux.**
 
+Установка необходимых библиотек.
+
+Ubuntu/Debian:
+```sh
+sudo apt install -y python3 ninja-build libglib2.0-dev libpixman-1-dev libfdt-dev libncurses-dev zlib1g-dev cpio rsync bc flex bison i2c-tools
+```
+
+Fedora:
+```sh
+sudo dnf install -y python3 ninja-build glib2-devel pixman-devel libfdt-devel ncurses-devel zlib-devel cpio rsync bc flex bison i2c-tools
+```
+
 Для начала нужно клонировать репозиторий qemu и сконфигурировать сборку.
 ```sh
 make setup
