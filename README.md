@@ -12,7 +12,7 @@
 
 **Сборка и запуск предполагают использование операционной системы Linux.**
 
-Установка необходимых библиотек.
+### Установка необходимых библиотек
 
 Ubuntu/Debian:
 ```sh
@@ -24,28 +24,38 @@ Fedora:
 sudo dnf install -y python3 ninja-build glib2-devel pixman-devel libfdt-devel ncurses-devel zlib-devel cpio rsync bc flex bison i2c-tools
 ```
 
-Для начала нужно клонировать репозиторий qemu и сконфигурировать сборку.
+### Получение QEMU
+
+Для начала нужно клонировать репозиторий QEMU и сконфигурировать сборку.
 ```sh
 make setup
 ```
 
-Для запуска требуются образы ядра Linux и файловой системы. Их собираем с помощью команд ниже (может занимать от 15 минут), после чего они появятся в `images/`. 
-```sh
-chmod +x ./build-images.sh
-./build-images.sh
-```
+### Образы Linux и файловой системы
 
-Сборка QEMU:
+Для запуска требуются образы ядра Linux и файловой системы. Получить их можно двумя способами:
+1. Скачать архив `images.tar.xz` из репозитория https://github.com/trickyPupa/yadro_i2c_qemu/releases/tag/v1.0.0, его нужно распаковать в корне проекта.
+1. Собрать самостоятельно с помощью команд ниже (может занимать от 30 минут), после чего они появятся в `images/`. 
+    ```sh
+    chmod +x ./build-images.sh
+    ./build-images.sh
+    ```
+
+### Сборка QEMU
+
 ```sh
 make build
 ```
 
-Запуск QEMU:
+### Запуск QEMU
+
 ```sh
 make run
 ```
 
-После сборки QEMU в терминале предложит ввести login, вводим `root`.
+После запуска QEMU в терминале предложит ввести login, вводим `root`.
+
+### QMP мониторинг
 
 Для запуска программы, которая через QMP считывает значение регистра I2C-устройства:
 ```sh
@@ -99,7 +109,7 @@ Register value: 84
 
 ## Детали реализации
 
-### Устройство 
+### Устройство
 
 Исходный код устройства находится в [src/i2c_device.c](src/i2c_device.c):
 ```c
@@ -211,7 +221,7 @@ run: build
 		-kernel $(IMAGES_DIR)/zImage \
 		-dtb $(IMAGES_DIR)/versatile-pb.dtb \
 		-append "root=/dev/sda console=ttyAMA0,115200" \
-		-drive file=$(IMAGES_DIR)/rootfs.ext2,if=scsi,format=raw \
+		-drive file=$(IMAGES_DIR)/rootfs.ext2,format=raw \
 		-nographic \
 		-device yadro-i2c-device,address=$(I2C_ADDR),bus=i2c,id=yadro-i2c \
 		-qmp unix:/tmp/qmp.sock,server,nowait
@@ -219,18 +229,18 @@ run: build
 
 Параметры запуска QEMU:
 
-- `-M versatilepb` - Выбирает платформы для эмуляции: ARM board Versatile/PB. Без этого QEMU нечего будет эмулировать.
+- `-M versatilepb` - Выбирает платформу для эмуляции: ARM board Versatile/PB. Без этого QEMU нечего будет эмулировать.
 - `-kernel $(IMAGES_DIR)/zImage` - Напрямую загружает Linux-ядро. Нужно для запуска Linux в QEMU.
 - `-dtb $(IMAGES_DIR)/versatile-pb.dtb` - Передаёт ядру описание устройств/шин/адресов для выбранной машины. Так как ядро собирается самостоятельно, конфигурация может быть нестандартной.
 - `-append "root=/dev/sda console=ttyAMA0,115200"` - Передаёт параметры командной строки ядра.
     - `root=/dev/sda` - указывает, где находится корневая файловая система.
-    - `console=ttyAMA0,115200` - показывает куда выводить консоль (нужно в `nographic` режиме), без этого не будет ввода и вывода.
+    - `console=ttyAMA0,115200` - показывает, куда выводить консоль (нужно в `nographic` режиме), без этого не будет ввода и вывода.
 - `-drive file=$(IMAGES_DIR)/rootfs.ext2,format=raw` - Подключает образ диска с rootfs (`rootfs.ext2`). `format=raw` — явно указывает формат образа, если убрать возникнет предупреждение от QEMU.
 - `-nographic` - Отключает графическое окно и перенаправляет стандартные IO устройства в консоль, удобно для запуска в терминале.
 - `-device yadro-i2c-device,address=$(I2C_ADDR),bus=i2c,id=yadro-i2c` - Добавляет I2C-устройство в конфигурацию машины. 
     - `address=$(I2C_ADDR)` - адрес устройства.
     - `bus=i2c` - имя шины, к которой подключается устройство.
-    - `id=yadro-i2c` — QOM id устройства, используется при обращении в скрипте с QMP.
+    - `id=yadro-i2c` — QOM id устройства, используется при обращении из скрипта с QMP.
 - `-qmp unix:/tmp/qmp.sock,server,nowait` - Включает QMP-монитор и поднимает сервер на UNIX-сокете `/tmp/qmp.sock`.
     - `server` — ожидает подключений к сокету.
     - `nowait` — не блокирует запуск, ожидая подключения.
